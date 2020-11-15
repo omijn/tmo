@@ -16,7 +16,9 @@ The name and phone number don't matter. The important parts are the splitwise us
 
 ### Step 2 (Translation and communicating split amount to members on Splitwise)
 The output file is in JSON and has the following format:
-```{
+
+```
+{
 	"total": "123.5",
 	"desc": "bill",
 	"group_id": "12345",
