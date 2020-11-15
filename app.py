@@ -113,30 +113,6 @@ def add_group_expense(exp_data: dict):
     if "comment" in exp_data and exp_data["comment"] != "":
         add_comment_to_expense(resp.getId(), comment)
 
-def add_single_expense(total: float, user_id: int, share: float, desc: str, group_id: int = None):
-    expense = Expense()
-    expense.setCost(total)
-    expense.setDescription(desc)
-
-    if group_id is not None:
-        expense.setGroupId(group_id)
-
-    me = ExpenseUser()
-    me.setId(s.getCurrentUser().getId())
-    me.setPaidShare(float(share))
-    me.setOwedShare(0)
-
-    user = ExpenseUser()
-    user.setId(user_id)
-    user.setPaidShare(0)
-    user.setOwedShare(float(share))
-
-    expense.addUser(user)
-    expense.addUser(me)
-    resp, err = s.createExpense(expense)
-
-    return resp, err
-
 def add_comment_to_expense(expense_id: id, comment: str):
     resp, err = s.createComment(expense_id, comment)
     return resp, err
