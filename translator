@@ -1,0 +1,11 @@
+#!/bin/bash
+
+in_file="$1"
+out_file="$2"
+
+total=$(awk -F"$" '{print $2}' $in_file | bc | paste -s -d+ | bc)
+desc=$(echo "$(date --date="$(date +%Y-%m-15) -1 month" +'T-Mobile: %B 5 to')" $(date +'%B 4'))
+tmp=$(mktemp)
+jq --arg desc "$desc" --arg total "$total" '.desc = $desc | .total = $total' $out_file > "$tmp" && mv "$tmp" $out_file
+
+paste -d_ <(awk -F_ '{print $1}' $in_file) <(awk "-F$" '{print $2}' $in_file | bc) | tail -n +2 | while IFS=_ read uid amt; do tmp=$(mktemp); jq '.users."'$uid'".amt = "'$amt'"' $out_file > "$tmp" && mv "$tmp" $out_file; done
