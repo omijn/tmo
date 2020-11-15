@@ -18,10 +18,12 @@ oauth = OAuth(app)
 parser = argparse.ArgumentParser(description="Add T-Mobile bill to Splitwise")
 parser.add_argument("-c", "--config", required=True, help="path to .ini config file")
 parser.add_argument("-e", "--expense", required=True, help="path to JSON expense file")
+parser.add_argument("-d", "--dry-run", action='store_true', default=False, help="show what would happen without actually creating the expense on Splitwise")
 args = parser.parse_args()
 
 CONFIG_PATH = args.config
 EXPENSE_PATH = args.expense
+DRY_RUN = args.dry_run
 
 # https://stackoverflow.com/questions/15562446/how-to-stop-flask-application-without-using-ctrl-c
 def shutdown_server():
@@ -98,6 +100,11 @@ def add_group_expense(exp_data: dict):
     me.setOwedShare(total - sum)
     expense.addUser(me)
 
+    if DRY_RUN:
+        print("--- dry run ---")
+        print_expense_details(expense)
+        return
+
     resp, err = s.createExpense(expense)
 
     # handle err
@@ -112,6 +119,11 @@ def add_group_expense(exp_data: dict):
     # extra comments
     if "comment" in exp_data and exp_data["comment"] != "":
         add_comment_to_expense(resp.getId(), comment)
+
+
+def print_expense_details(expense: Expense):
+    for user in expense.getUsers():
+        print(f"{user.getId()} owes {user.getOwedShare()}")
 
 def add_comment_to_expense(expense_id: id, comment: str):
     resp, err = s.createComment(expense_id, comment)
